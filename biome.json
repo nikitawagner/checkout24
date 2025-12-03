@@ -12,7 +12,7 @@
 		"enabled": true,
 		"indentStyle": "tab",
 		"lineEnding": "lf",
-    	"lineWidth": 80
+		"lineWidth": 80
 	},
 	"linter": {
 		"enabled": true,
@@ -23,6 +23,11 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	},
 	"assist": {

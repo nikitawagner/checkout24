@@ -12,4 +12,3 @@ export const toResult = async <T, E = Error>(
 		return { success: false, error: error as E };
 	}
 };
-

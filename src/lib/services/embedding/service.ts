@@ -1,16 +1,16 @@
 import { auth } from "@clerk/nextjs/server";
 import type { EmbeddingDeps } from "./deps";
 import {
-	formatEmbeddingRequest,
 	formatEmbeddingBatchRequest,
-	validateEmbeddingResponse,
+	formatEmbeddingRequest,
 	validateEmbeddingBatchResponse,
+	validateEmbeddingResponse,
 } from "./internal";
 import type {
-	EmbeddingRequest,
-	EmbeddingResponse,
 	EmbeddingBatchRequest,
 	EmbeddingBatchResponse,
+	EmbeddingRequest,
+	EmbeddingResponse,
 } from "./types";
 
 export type IEmbeddingService = {
@@ -43,8 +43,7 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey =
-			embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
@@ -60,9 +59,7 @@ export const createEmbeddingService = (
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(
-				`Embedding API error: ${response.statusText} - ${error}`,
-			);
+			throw new Error(`Embedding API error: ${response.statusText} - ${error}`);
 		}
 
 		const data = await response.json();
@@ -94,8 +91,7 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey =
-			embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
@@ -111,16 +107,13 @@ export const createEmbeddingService = (
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(
-				`Embedding API error: ${response.statusText} - ${error}`,
-			);
+			throw new Error(`Embedding API error: ${response.statusText} - ${error}`);
 		}
 
 		const data = await response.json();
 
 		const embeddings =
-			data.data?.map((item: { embedding: number[] }) => item.embedding) ||
-			[];
+			data.data?.map((item: { embedding: number[] }) => item.embedding) || [];
 
 		return validateEmbeddingBatchResponse({
 			embeddings,
@@ -134,4 +127,3 @@ export const createEmbeddingService = (
 		generateBatch,
 	};
 };
-

@@ -32,4 +32,3 @@ export type GetUrlResponse = {
 	url: string;
 	expiresAt?: Date;
 };
-

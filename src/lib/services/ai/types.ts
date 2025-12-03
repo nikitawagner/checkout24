@@ -10,4 +10,3 @@ export type LLMResponse = {
 	userId: string;
 	timestamp: Date;
 };
-

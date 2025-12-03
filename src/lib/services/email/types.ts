@@ -13,4 +13,3 @@ export type EmailResponse = {
 	userId: string;
 	timestamp: Date;
 };
-

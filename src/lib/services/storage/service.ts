@@ -1,17 +1,17 @@
 import { auth } from "@clerk/nextjs/server";
 import type { StorageDeps } from "./deps";
 import {
-	validateUploadResponse,
-	validateDeleteResponse,
 	getFileKey,
+	validateDeleteResponse,
+	validateUploadResponse,
 } from "./internal";
 import type {
-	UploadRequest,
-	UploadResponse,
 	DeleteRequest,
 	DeleteResponse,
 	GetUrlRequest,
 	GetUrlResponse,
+	UploadRequest,
+	UploadResponse,
 } from "./types";
 
 export type IStorageService = {
@@ -20,9 +20,7 @@ export type IStorageService = {
 	getUrl: (request: GetUrlRequest) => Promise<GetUrlResponse>;
 };
 
-export const createStorageService = (
-	deps: StorageDeps,
-): IStorageService => {
+export const createStorageService = (deps: StorageDeps): IStorageService => {
 	const { config: storageConfig } = deps;
 
 	const upload = async (request: UploadRequest): Promise<UploadResponse> => {
@@ -147,9 +145,7 @@ export const createStorageService = (
 
 			if (!response.ok) {
 				const error = await response.text();
-				throw new Error(
-					`Storage URL error: ${response.statusText} - ${error}`,
-				);
+				throw new Error(`Storage URL error: ${response.statusText} - ${error}`);
 			}
 
 			const data = await response.json();
@@ -170,4 +166,3 @@ export const createStorageService = (
 		getUrl,
 	};
 };
-

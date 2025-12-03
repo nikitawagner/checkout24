@@ -14,4 +14,3 @@ export type StorageConfig = {
 	secretAccessKey?: string;
 	endpoint?: string;
 };
-

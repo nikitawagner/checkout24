@@ -1,4 +1,4 @@
-import type { UploadResponse, DeleteResponse } from "./types";
+import type { DeleteResponse, UploadResponse } from "./types";
 
 export const validateUploadResponse = (response: unknown): UploadResponse => {
 	if (!response || typeof response !== "object") {
@@ -55,17 +55,20 @@ export const validateDeleteResponse = (response: unknown): DeleteResponse => {
 	};
 };
 
-export const getFileKey = (fileName: string, folder?: string, userId?: string) => {
+export const getFileKey = (
+	fileName: string,
+	folder?: string,
+	userId?: string,
+) => {
 	const timestamp = Date.now();
 	const random = Math.random().toString(36).substring(7);
 	const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-	
+
 	const parts = [
 		...(userId ? [userId] : []),
 		...(folder ? [folder] : []),
 		`${timestamp}-${random}-${sanitizedFileName}`,
 	];
-	
+
 	return parts.join("/");
 };
-

@@ -12,4 +12,3 @@ export type LLMConfig = {
 	defaultProvider: string;
 	apiKey?: string;
 };
-

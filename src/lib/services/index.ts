@@ -41,15 +41,14 @@ export const storageService = createStorageService({
 });
 
 export { createLLMService } from "./ai";
-export { createEmailService } from "./email";
-export { createEmbeddingService } from "./embedding";
-export { createStorageService } from "./storage";
-
-export * from "./ai/types";
 export * from "./ai/config";
-export * from "./email/types";
+export * from "./ai/types";
+export { createEmailService } from "./email";
 export * from "./email/config";
-export * from "./embedding/types";
+export * from "./email/types";
+export { createEmbeddingService } from "./embedding";
 export * from "./embedding/config";
-export * from "./storage/types";
+export * from "./embedding/types";
+export { createStorageService } from "./storage";
 export * from "./storage/config";
+export * from "./storage/types";

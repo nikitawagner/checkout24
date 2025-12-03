@@ -10,4 +10,3 @@ export type EmbeddingConfig = {
 	provider: string;
 	apiKey?: string;
 };
-

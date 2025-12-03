@@ -8,4 +8,3 @@ export type EmailConfig = {
 	provider: string;
 	apiKey?: string;
 };
-

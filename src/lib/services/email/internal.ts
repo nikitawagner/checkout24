@@ -44,4 +44,3 @@ export const formatEmailRequest = (
 		...(bcc && { bcc: Array.isArray(bcc) ? bcc : [bcc] }),
 	};
 };
-

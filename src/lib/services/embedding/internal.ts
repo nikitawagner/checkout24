@@ -1,7 +1,4 @@
-import type {
-	EmbeddingResponse,
-	EmbeddingBatchResponse,
-} from "./types";
+import type { EmbeddingBatchResponse, EmbeddingResponse } from "./types";
 
 export const validateEmbeddingResponse = (
 	response: unknown,
@@ -48,9 +45,7 @@ export const validateEmbeddingBatchResponse = (
 	}
 
 	if (typeof resp.userId !== "string") {
-		throw new Error(
-			"Invalid embedding batch response: userId is not a string",
-		);
+		throw new Error("Invalid embedding batch response: userId is not a string");
 	}
 
 	return {
@@ -86,4 +81,3 @@ export const formatEmbeddingBatchRequest = (
 		dimensions,
 	};
 };
-

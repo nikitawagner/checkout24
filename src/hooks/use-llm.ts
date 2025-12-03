@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { getLLMResponse } from "@/src/actions/llm";
-import type { LLMRequest, LLMResponse } from "@/src/lib/services/ai/types";
+import type { LLMRequest } from "@/src/lib/services/ai/types";
 
 export const useLLM = () => {
 	const [isLoading, setIsLoading] = useState(false);

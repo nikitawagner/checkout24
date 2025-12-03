@@ -21,4 +21,3 @@ export type EmbeddingBatchResponse = {
 	userId: string;
 	timestamp: Date;
 };
-

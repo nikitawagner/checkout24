@@ -18,9 +18,10 @@ export const validateLLMResponse = (response: unknown): LLMResponse => {
 	return {
 		content: resp.content,
 		userId: resp.userId,
-		timestamp: resp.timestamp instanceof Date 
-			? resp.timestamp 
-			: new Date(resp.timestamp as string),
+		timestamp:
+			resp.timestamp instanceof Date
+				? resp.timestamp
+				: new Date(resp.timestamp as string),
 	};
 };
 
@@ -44,4 +45,3 @@ export const formatLLMRequest = (
 		user: userId,
 	};
 };
-
