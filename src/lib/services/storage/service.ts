@@ -47,7 +47,8 @@ export const createStorageService = (deps: StorageDeps): IStorageService => {
 
 		if (supabaseUrl && supabaseKey) {
 			const formData = new FormData();
-			const blob = new Blob([fileBuffer], {
+			const uint8Array = new Uint8Array(fileBuffer);
+			const blob = new Blob([uint8Array], {
 				type: request.contentType || "application/octet-stream",
 			});
 			formData.append("file", blob, request.fileName);

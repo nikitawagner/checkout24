@@ -9,14 +9,14 @@ const isPublicRoute = createRouteMatcher([
 	"/sso-callback(.*)",
 ]);
 
-export default clerkMiddleware((auth, request) => {
+export default clerkMiddleware(async (auth, request) => {
 	if (!isAuthDisabled && !isPublicRoute(request)) {
-		auth.protect();
+		await auth.protect();
 	}
 });
 
 export const config = {
 	matcher: [
-		"/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)).*)",
+		"/((?!_next|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot|map)).*)",
 	],
 };
