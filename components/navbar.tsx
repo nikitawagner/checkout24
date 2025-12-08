@@ -14,12 +14,28 @@ export function Navbar() {
 	return (
 		<nav className="fixed left-0 right-0 top-0 z-50 h-12 border-b border-border/50 bg-apple-card-bg/80 backdrop-blur-lg">
 			<div className="mx-auto flex h-full max-w-screen-xl items-center justify-between px-6">
-				<Link
-					href="/"
-					className="text-lg font-semibold text-apple-text-primary"
-				>
-					TechStore
-				</Link>
+				<div className="flex items-center gap-6">
+					<Link
+						href="/"
+						className="text-lg font-semibold text-apple-text-primary"
+					>
+						Hannovate
+					</Link>
+					<div className="flex items-center gap-4">
+						<Link
+							href="/customer-view"
+							className="text-sm text-apple-text-secondary transition-colors hover:text-apple-text-primary"
+						>
+							Customer
+						</Link>
+						<Link
+							href="/insurance-view"
+							className="text-sm text-apple-text-secondary transition-colors hover:text-apple-text-primary"
+						>
+							Insurance
+						</Link>
+					</div>
+				</div>
 
 				<div className="flex items-center gap-3">
 					<CartDropdown />
