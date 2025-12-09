@@ -1,21 +1,27 @@
 "use client";
 
 import { Check, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ClickSpark from "@/components/ClickSpark";
 import { InsuranceModal } from "@/components/insurance-modal";
 import { InsuranceUpsellPopup } from "@/components/insurance-upsell-popup";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/context/cart-context";
+import type { InsuranceRecommendation } from "@/lib/types/insurance";
+import { getRecommendedInsurances } from "@/src/actions/insurance";
 
 type AddToCartButtonProps = {
 	productId: string;
 	productName: string;
+	productCategory: string;
+	productPriceInCents: number;
 };
 
 export function AddToCartButton({
 	productId,
 	productName,
+	productCategory,
+	productPriceInCents,
 }: AddToCartButtonProps) {
 	const { addItem, getItemQuantity, setInsurance, hasInsurance } = useCart();
 	const quantity = getItemQuantity(productId);
@@ -24,6 +30,28 @@ export function AddToCartButton({
 
 	const [isInsurancePopupOpen, setIsInsurancePopupOpen] = useState(false);
 	const [isInsuranceModalOpen, setIsInsuranceModalOpen] = useState(false);
+	const [recommendedInsurance, setRecommendedInsurance] =
+		useState<InsuranceRecommendation | null>(null);
+	const [isLoadingInsurance, setIsLoadingInsurance] = useState(true);
+
+	const loadRecommendedInsurance = useCallback(async () => {
+		setIsLoadingInsurance(true);
+
+		const result = await getRecommendedInsurances(
+			productCategory,
+			productPriceInCents,
+		);
+
+		if (result.success && result.data.length > 0) {
+			setRecommendedInsurance(result.data.at(0) ?? null);
+		}
+
+		setIsLoadingInsurance(false);
+	}, [productCategory, productPriceInCents]);
+
+	useEffect(() => {
+		loadRecommendedInsurance();
+	}, [loadRecommendedInsurance]);
 
 	const handleAddToBag = () => {
 		addItem(productId);
@@ -31,7 +59,11 @@ export function AddToCartButton({
 	};
 
 	const handleInsuranceChange = (checked: boolean) => {
-		setInsurance(productId, checked);
+		setInsurance(
+			productId,
+			checked,
+			recommendedInsurance?.monthlyPriceInCents ?? null,
+		);
 	};
 
 	const handleSeeMore = () => {
@@ -66,6 +98,8 @@ export function AddToCartButton({
 					onClose={handleModalClose}
 					productId={productId}
 					productName={productName}
+					productCategory={productCategory}
+					productPriceInCents={productPriceInCents}
 				/>
 			</div>
 		);
@@ -87,6 +121,8 @@ export function AddToCartButton({
 				productName={productName}
 				isOpen={isInsurancePopupOpen}
 				isInsuranceChecked={isInsuranceAdded}
+				monthlyPriceInCents={recommendedInsurance?.monthlyPriceInCents ?? null}
+				isLoadingPrice={isLoadingInsurance}
 				onClose={() => setIsInsurancePopupOpen(false)}
 				onInsuranceChange={handleInsuranceChange}
 				onSeeMore={handleSeeMore}
@@ -97,6 +133,8 @@ export function AddToCartButton({
 				onClose={handleModalClose}
 				productId={productId}
 				productName={productName}
+				productCategory={productCategory}
+				productPriceInCents={productPriceInCents}
 			/>
 		</div>
 	);

@@ -17,8 +17,13 @@ type CartContextType = {
 	getItemQuantity: (productId: string) => number;
 	getTotalItems: () => number;
 	clearCart: () => void;
-	setInsurance: (productId: string, hasInsurance: boolean) => void;
+	setInsurance: (
+		productId: string,
+		hasInsurance: boolean,
+		priceInCents?: number | null,
+	) => void;
 	hasInsurance: (productId: string) => boolean;
+	getInsurancePrice: (productId: string) => number | null;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -44,7 +49,15 @@ export function CartProvider({ children }: CartProviderProps) {
 				);
 			}
 
-			return [...currentItems, { productId, quantity: 1, hasInsurance: false }];
+			return [
+				...currentItems,
+				{
+					productId,
+					quantity: 1,
+					hasInsurance: false,
+					insurancePriceInCents: null,
+				},
+			];
 		});
 	}, []);
 
@@ -88,11 +101,22 @@ export function CartProvider({ children }: CartProviderProps) {
 	}, []);
 
 	const setInsurance = useCallback(
-		(productId: string, insuranceEnabled: boolean) => {
+		(
+			productId: string,
+			insuranceEnabled: boolean,
+			priceInCents?: number | null,
+		) => {
 			setItems((currentItems) =>
 				currentItems.map((item) =>
 					item.productId === productId
-						? { ...item, hasInsurance: insuranceEnabled }
+						? {
+								...item,
+								hasInsurance: insuranceEnabled,
+								insurancePriceInCents:
+									priceInCents !== undefined
+										? priceInCents
+										: item.insurancePriceInCents,
+							}
 						: item,
 				),
 			);
@@ -109,6 +133,15 @@ export function CartProvider({ children }: CartProviderProps) {
 		[items],
 	);
 
+	const getInsurancePrice = useCallback(
+		(productId: string) => {
+			const item = items.find((cartItem) => cartItem.productId === productId);
+
+			return item?.insurancePriceInCents ?? null;
+		},
+		[items],
+	);
+
 	const contextValue = useMemo(
 		() => ({
 			items,
@@ -119,6 +152,7 @@ export function CartProvider({ children }: CartProviderProps) {
 			clearCart,
 			setInsurance,
 			hasInsurance: hasInsuranceForProduct,
+			getInsurancePrice,
 		}),
 		[
 			items,
@@ -129,6 +163,7 @@ export function CartProvider({ children }: CartProviderProps) {
 			clearCart,
 			setInsurance,
 			hasInsuranceForProduct,
+			getInsurancePrice,
 		],
 	);
 

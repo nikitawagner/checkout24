@@ -95,6 +95,8 @@ export default function ProductDetailPage() {
 							<AddToCartButton
 								productId={product.id}
 								productName={product.name}
+								productCategory={product.category}
+								productPriceInCents={product.basePrice * 100}
 							/>
 
 							<p className="text-center text-sm text-apple-text-secondary">

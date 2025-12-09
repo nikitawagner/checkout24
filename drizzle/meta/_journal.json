@@ -8,6 +8,27 @@
 			"when": 1764716852912,
 			"tag": "0000_striped_sally_floyd",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1765233349199,
+			"tag": "0001_vengeful_felicia_hardy",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1765233549199,
+			"tag": "0002_clerk_user_id_migration",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1765234000000,
+			"tag": "0003_add_insurance_fields",
+			"breakpoints": true
 		}
 	]
 }

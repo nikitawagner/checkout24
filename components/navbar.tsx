@@ -34,6 +34,12 @@ export function Navbar() {
 						>
 							Insurance
 						</Link>
+						<Link
+							href="/admin"
+							className="text-sm text-apple-text-secondary transition-colors hover:text-apple-text-primary"
+						>
+							Admin
+						</Link>
 					</div>
 				</div>
 

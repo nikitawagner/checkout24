@@ -1,169 +1,95 @@
-import { auth } from "@clerk/nextjs/server";
 import type { StorageDeps } from "./deps";
-import {
-	getFileKey,
-	validateDeleteResponse,
-	validateUploadResponse,
-} from "./internal";
+import { buildPublicUrl } from "./internal";
 import type {
-	DeleteRequest,
+	AddResponse,
 	DeleteResponse,
-	GetUrlRequest,
-	GetUrlResponse,
-	UploadRequest,
-	UploadResponse,
+	GetResponse,
+	StorageBucket,
+	UpdateResponse,
 } from "./types";
 
-export type IStorageService = {
-	upload: (request: UploadRequest) => Promise<UploadResponse>;
-	delete: (request: DeleteRequest) => Promise<DeleteResponse>;
-	getUrl: (request: GetUrlRequest) => Promise<GetUrlResponse>;
+type BucketOperations = {
+	add: (path: string, file: File | Blob) => Promise<AddResponse>;
+	get: (path: string) => GetResponse;
+	update: (path: string, file: File | Blob) => Promise<UpdateResponse>;
+	delete: (path: string) => Promise<DeleteResponse>;
 };
 
-export const createStorageService = (deps: StorageDeps): IStorageService => {
-	const { config: storageConfig } = deps;
+export type IStorageService = {
+	file: BucketOperations;
+	image: BucketOperations;
+	audio: BucketOperations;
+};
 
-	const upload = async (request: UploadRequest): Promise<UploadResponse> => {
-		const { userId } = await auth();
+const createBucketOperations = (
+	deps: StorageDeps,
+	bucket: StorageBucket,
+): BucketOperations => {
+	const { supabase } = deps;
 
-		if (!userId) {
-			throw new Error("Unauthorized - User must be authenticated");
+	const add = async (path: string, file: File | Blob): Promise<AddResponse> => {
+		const { data, error } = await supabase.storage
+			.from(bucket)
+			.upload(path, file, { upsert: false });
+
+		if (error) {
+			throw new Error(`Failed to add ${bucket}: ${error.message}`);
 		}
 
-		const key = getFileKey(request.fileName, request.folder, userId);
-
-		let fileBuffer: Buffer;
-		if (request.file instanceof Buffer) {
-			fileBuffer = request.file;
-		} else if (request.file instanceof Blob || request.file instanceof File) {
-			const arrayBuffer = await request.file.arrayBuffer();
-			fileBuffer = Buffer.from(arrayBuffer);
-		} else {
-			throw new Error("Invalid file type");
-		}
-
-		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-		const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-		if (supabaseUrl && supabaseKey) {
-			const formData = new FormData();
-			const uint8Array = new Uint8Array(fileBuffer);
-			const blob = new Blob([uint8Array], {
-				type: request.contentType || "application/octet-stream",
-			});
-			formData.append("file", blob, request.fileName);
-
-			const response = await fetch(
-				`${supabaseUrl}/storage/v1/object/${storageConfig.bucket}/${key}`,
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${supabaseKey}`,
-						"x-upsert": "true",
-					},
-					body: formData,
-				},
-			);
-
-			if (!response.ok) {
-				const error = await response.text();
-				throw new Error(
-					`Storage upload error: ${response.statusText} - ${error}`,
-				);
-			}
-
-			const publicUrl = request.public
-				? `${supabaseUrl}/storage/v1/object/public/${storageConfig.bucket}/${key}`
-				: `${supabaseUrl}/storage/v1/object/${storageConfig.bucket}/${key}`;
-
-			return validateUploadResponse({
-				url: publicUrl,
-				key,
-				userId,
-				timestamp: new Date(),
-			});
-		}
-
-		throw new Error("Storage provider not configured");
+		return {
+			path: data.path,
+			publicUrl: buildPublicUrl(supabase, bucket, data.path),
+		};
 	};
 
-	const deleteFile = async (
-		request: DeleteRequest,
-	): Promise<DeleteResponse> => {
-		const { userId } = await auth();
-
-		if (!userId) {
-			throw new Error("Unauthorized - User must be authenticated");
-		}
-
-		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-		const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-		if (supabaseUrl && supabaseKey) {
-			const response = await fetch(
-				`${supabaseUrl}/storage/v1/object/${storageConfig.bucket}/${request.key}`,
-				{
-					method: "DELETE",
-					headers: {
-						Authorization: `Bearer ${supabaseKey}`,
-					},
-				},
-			);
-
-			if (!response.ok && response.status !== 404) {
-				const error = await response.text();
-				throw new Error(
-					`Storage delete error: ${response.statusText} - ${error}`,
-				);
-			}
-
-			return validateDeleteResponse({
-				success: true,
-				userId,
-				timestamp: new Date(),
-			});
-		}
-
-		throw new Error("Storage provider not configured");
+	const get = (path: string): GetResponse => {
+		return {
+			publicUrl: buildPublicUrl(supabase, bucket, path),
+		};
 	};
 
-	const getUrl = async (request: GetUrlRequest): Promise<GetUrlResponse> => {
-		const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-		const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+	const update = async (
+		path: string,
+		file: File | Blob,
+	): Promise<UpdateResponse> => {
+		const { data, error } = await supabase.storage
+			.from(bucket)
+			.upload(path, file, { upsert: true });
 
-		if (supabaseUrl && supabaseKey) {
-			const expiresIn = request.expiresIn || 3600;
-
-			const response = await fetch(
-				`${supabaseUrl}/storage/v1/object/sign/${storageConfig.bucket}/${request.key}?expiresIn=${expiresIn}`,
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${supabaseKey}`,
-					},
-				},
-			);
-
-			if (!response.ok) {
-				const error = await response.text();
-				throw new Error(`Storage URL error: ${response.statusText} - ${error}`);
-			}
-
-			const data = await response.json();
-			const signedUrl = `${supabaseUrl}${data.signedURL}`;
-
-			return {
-				url: signedUrl,
-				expiresAt: new Date(Date.now() + expiresIn * 1000),
-			};
+		if (error) {
+			throw new Error(`Failed to update ${bucket}: ${error.message}`);
 		}
 
-		throw new Error("Storage provider not configured");
+		return {
+			path: data.path,
+			publicUrl: buildPublicUrl(supabase, bucket, data.path),
+		};
+	};
+
+	const deleteItem = async (path: string): Promise<DeleteResponse> => {
+		const { error } = await supabase.storage.from(bucket).remove([path]);
+
+		if (error) {
+			throw new Error(`Failed to delete ${bucket}: ${error.message}`);
+		}
+
+		return { isDeleted: true };
 	};
 
 	return {
-		upload: upload,
-		delete: deleteFile,
-		getUrl,
+		add,
+		get,
+		update,
+		delete: deleteItem,
+	};
+};
+
+export const createStorageService = (deps: StorageDeps): IStorageService => {
+	const { config } = deps;
+
+	return {
+		file: createBucketOperations(deps, config.buckets.files),
+		image: createBucketOperations(deps, config.buckets.images),
+		audio: createBucketOperations(deps, config.buckets.audio),
 	};
 };

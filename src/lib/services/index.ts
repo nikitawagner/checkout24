@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 import { createLLMService } from "./ai";
 import { LLM_CONFIG } from "./ai/config";
 
@@ -31,12 +33,17 @@ export const embeddingService = createEmbeddingService({
 	},
 });
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export const storageService = createStorageService({
+	supabase,
 	config: {
 		...STORAGE_CONFIG,
-		accessKeyId: process.env.STORAGE_ACCESS_KEY_ID,
-		secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY,
-		endpoint: process.env.STORAGE_ENDPOINT,
+		supabaseUrl,
+		supabaseAnonKey,
 	},
 });
 

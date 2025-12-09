@@ -12,7 +12,7 @@ import {
 import { useCart } from "@/lib/context/cart-context";
 import { products } from "@/lib/data/products";
 
-const INSURANCE_PRICE = 3.99;
+const CENTS_PER_DOLLAR = 100;
 
 export function CartDropdown() {
 	const { items, addItem, removeItem, getTotalItems, clearCart } = useCart();
@@ -35,7 +35,10 @@ export function CartDropdown() {
 		}
 
 		const productTotal = item.product.basePrice * item.quantity;
-		const insuranceTotal = item.hasInsurance ? INSURANCE_PRICE : 0;
+		const insurancePriceInDollars = item.insurancePriceInCents
+			? item.insurancePriceInCents / CENTS_PER_DOLLAR
+			: 0;
+		const insuranceTotal = item.hasInsurance ? insurancePriceInDollars : 0;
 
 		return sum + productTotal + insuranceTotal;
 	}, 0);
@@ -142,12 +145,17 @@ export function CartDropdown() {
 											<p className="text-sm text-apple-text-secondary">
 												{itemPrice}
 											</p>
-											{item.hasInsurance && (
-												<p className="flex items-center gap-1 text-xs text-green-600">
-													<Shield className="size-3" />
-													Insurance +${INSURANCE_PRICE.toFixed(2)}
-												</p>
-											)}
+											{item.hasInsurance &&
+												item.insurancePriceInCents !== null && (
+													<p className="flex items-center gap-1 text-xs text-green-600">
+														<Shield className="size-3" />
+														Insurance +$
+														{(
+															item.insurancePriceInCents / CENTS_PER_DOLLAR
+														).toFixed(2)}
+														/mo
+													</p>
+												)}
 
 											<div className="mt-1 flex items-center gap-2">
 												<button

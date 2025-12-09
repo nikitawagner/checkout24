@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type InsuranceUpsellPopupProps = {
@@ -8,16 +8,20 @@ type InsuranceUpsellPopupProps = {
 	productName: string;
 	isOpen: boolean;
 	isInsuranceChecked: boolean;
+	monthlyPriceInCents: number | null;
+	isLoadingPrice: boolean;
 	onClose: () => void;
 	onInsuranceChange: (checked: boolean) => void;
 	onSeeMore: () => void;
 };
 
-const INSURANCE_PRICE = 3.99;
+const CENTS_PER_DOLLAR = 100;
 
 export function InsuranceUpsellPopup({
 	isOpen,
 	isInsuranceChecked,
+	monthlyPriceInCents,
+	isLoadingPrice,
 	onClose,
 	onInsuranceChange,
 	onSeeMore,
@@ -35,21 +39,40 @@ export function InsuranceUpsellPopup({
 						checked={isInsuranceChecked}
 						onCheckedChange={(checked) => onInsuranceChange(checked === true)}
 						className="mt-0.5"
+						disabled={isLoadingPrice || monthlyPriceInCents === null}
 					/>
 					<div className="flex flex-col gap-1">
 						<label
 							htmlFor="insurance-checkbox"
 							className="cursor-pointer text-sm font-medium text-apple-text-primary"
 						>
-							Add insurance for ${INSURANCE_PRICE.toFixed(2)}
+							{isLoadingPrice ? (
+								<span className="flex items-center gap-2">
+									<Loader2 className="h-3 w-3 animate-spin" />
+									Loading insurance...
+								</span>
+							) : monthlyPriceInCents !== null ? (
+								isInsuranceChecked ? (
+									<span className="flex items-center gap-2 text-green-600">
+										<Check className="h-4 w-4" />
+										Insurance added
+									</span>
+								) : (
+									`Add insurance for $${(monthlyPriceInCents / CENTS_PER_DOLLAR).toFixed(2)}/mo`
+								)
+							) : (
+								"No insurance available"
+							)}
 						</label>
-						<button
-							type="button"
-							onClick={onSeeMore}
-							className="text-left text-sm font-medium text-apple-blue hover:underline"
-						>
-							See more
-						</button>
+						{monthlyPriceInCents !== null && (
+							<button
+								type="button"
+								onClick={onSeeMore}
+								className="text-left text-sm font-medium text-apple-blue hover:underline"
+							>
+								See more
+							</button>
+						)}
 					</div>
 				</div>
 

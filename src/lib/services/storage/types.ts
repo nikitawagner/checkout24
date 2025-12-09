@@ -1,34 +1,19 @@
-export type UploadRequest = {
-	file: File | Blob | Buffer;
-	fileName: string;
-	folder?: string;
-	contentType?: string;
-	public?: boolean;
+export type StorageBucket = "files" | "images" | "audio";
+
+export type AddResponse = {
+	path: string;
+	publicUrl: string;
 };
 
-export type UploadResponse = {
-	url: string;
-	key: string;
-	userId: string;
-	timestamp: Date;
+export type GetResponse = {
+	publicUrl: string;
 };
 
-export type DeleteRequest = {
-	key: string;
+export type UpdateResponse = {
+	path: string;
+	publicUrl: string;
 };
 
 export type DeleteResponse = {
-	success: boolean;
-	userId: string;
-	timestamp: Date;
-};
-
-export type GetUrlRequest = {
-	key: string;
-	expiresIn?: number; // seconds
-};
-
-export type GetUrlResponse = {
-	url: string;
-	expiresAt?: Date;
+	isDeleted: boolean;
 };
