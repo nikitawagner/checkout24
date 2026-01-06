@@ -1,7 +1,7 @@
 export const EMBEDDING_CONFIG = {
-	model: "text-embedding-3-small",
-	dimensions: 1536,
-	provider: "openai",
+	model: "embedding-001",
+	dimensions: 768,
+	provider: "gemini",
 } as const;
 
 export type EmbeddingConfig = {

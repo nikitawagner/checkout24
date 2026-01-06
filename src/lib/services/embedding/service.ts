@@ -43,19 +43,32 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey || process.env.GEMINI_API_KEY;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
 
-		const response = await fetch("https://api.openai.com/v1/embeddings", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
+		// Convert model name to API format
+		const modelName = model.startsWith("models/") ? model : `models/${model}`;
+
+		const response = await fetch(
+			`https://generativelanguage.googleapis.com/v1beta/${modelName}:embedContent?key=${apiKey}`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					content: {
+						parts: [
+							{
+								text: request.text,
+							},
+						],
+					},
+				}),
 			},
-			body: JSON.stringify(formattedRequest),
-		});
+		);
 
 		if (!response.ok) {
 			const error = await response.text();
@@ -64,7 +77,7 @@ export const createEmbeddingService = (
 
 		const data = await response.json();
 
-		const embedding = data.data?.[0]?.embedding || [];
+		const embedding = data.embedding?.values || [];
 
 		return validateEmbeddingResponse({
 			embedding,
@@ -91,29 +104,45 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey || process.env.GEMINI_API_KEY;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
 
-		const response = await fetch("https://api.openai.com/v1/embeddings", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
-			},
-			body: JSON.stringify(formattedRequest),
-		});
+		const embeddings: number[][] = [];
 
-		if (!response.ok) {
-			const error = await response.text();
-			throw new Error(`Embedding API error: ${response.statusText} - ${error}`);
+		for (const text of request.texts) {
+			// Convert model name to API format
+			const modelName = model.startsWith("models/") ? model : `models/${model}`;
+
+			const response = await fetch(
+				`https://generativelanguage.googleapis.com/v1beta/${modelName}:embedContent?key=${apiKey}`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						content: {
+							parts: [
+								{
+									text: text,
+								},
+							],
+						},
+					}),
+				},
+			);
+
+			if (!response.ok) {
+				const error = await response.text();
+				throw new Error(`Embedding API error: ${response.statusText} - ${error}`);
+			}
+
+			const data = await response.json();
+			const embedding = data.embedding?.values || [];
+			embeddings.push(embedding);
 		}
-
-		const data = await response.json();
-
-		const embeddings =
-			data.data?.map((item: { embedding: number[] }) => item.embedding) || [];
 
 		return validateEmbeddingBatchResponse({
 			embeddings,
