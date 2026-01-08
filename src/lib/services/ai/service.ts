@@ -30,39 +30,14 @@ export const createLLMService = (deps: LLMDeps): ILLMService => {
 			userId,
 		);
 
-		const apiKey = llmConfig.apiKey || process.env.GEMINI_API_KEY;
-		if (!apiKey) {
-			throw new Error("Gemini API key not configured");
-		}
-
-		// Convert model name to API format (e.g., "gemini-2.0-flash" -> "gemini-2.0-flash")
-		const modelName = model.startsWith("gemini-") ? model : `gemini-${model}`;
-
-		const response = await fetch(
-			`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					contents: [
-						{
-							role: "user",
-							parts: [
-								{
-									text: formattedRequest.prompt,
-								},
-							],
-						},
-					],
-					generationConfig: {
-						temperature: formattedRequest.temperature,
-						maxOutputTokens: formattedRequest.max_tokens,
-					},
-				}),
+		const response = await fetch("https://api.openai.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${llmConfig.apiKey || process.env.OPENAI_API_KEY}`,
 			},
-		);
+			body: JSON.stringify(formattedRequest),
+		});
 
 		if (!response.ok) {
 			const error = await response.text();
@@ -71,7 +46,7 @@ export const createLLMService = (deps: LLMDeps): ILLMService => {
 
 		const data = await response.json();
 
-		const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+		const content = data.choices?.[0]?.message?.content || "";
 
 		return validateLLMResponse({
 			content,
