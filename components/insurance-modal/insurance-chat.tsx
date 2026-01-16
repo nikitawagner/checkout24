@@ -62,7 +62,7 @@ export function InsuranceChat({
 		} else {
 			addMessage(
 				"assistant",
-				"I apologize, but I encountered an error processing your question. Please try again.",
+				"Es tut mir leid, aber bei der Verarbeitung Ihrer Frage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
 			);
 		}
 
@@ -89,10 +89,10 @@ export function InsuranceChat({
 		<div className="flex flex-col">
 			<div className="mb-3">
 				<h4 className="text-sm font-medium text-apple-text-primary">
-					Ask about {insuranceName}
+					Fragen zu {insuranceName}
 				</h4>
 				<p className="text-xs text-apple-text-tertiary">
-					Get instant answers about coverage, claims, and more
+					Erhalten Sie sofortige Antworten zu Deckung, Schadensfällen und mehr
 				</p>
 			</div>
 
@@ -103,9 +103,9 @@ export function InsuranceChat({
 				{messages.length === 0 ? (
 					<div className="flex h-full items-center justify-center">
 						<p className="text-center text-sm text-apple-text-tertiary">
-							Ask a question about your insurance coverage.
+							Stellen Sie eine Frage zu Ihrer Versicherungsdeckung.
 							<br />
-							For example: &quot;Is water damage covered?&quot;
+							Zum Beispiel: &quot;Sind Wasserschäden abgedeckt?&quot;
 						</p>
 					</div>
 				) : (
@@ -118,7 +118,7 @@ export function InsuranceChat({
 								<div
 									className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
 										message.role === "user"
-											? "bg-apple-blue text-white"
+											? "bg-teal-500 text-white"
 											: "bg-white text-apple-text-primary shadow-sm"
 									}`}
 								>
@@ -142,7 +142,7 @@ export function InsuranceChat({
 					value={inputValue}
 					onChange={(event) => setInputValue(event.target.value)}
 					onKeyDown={handleKeyDown}
-					placeholder="Type your question..."
+					placeholder="Geben Sie Ihre Frage ein..."
 					disabled={isLoading}
 					rows={1}
 					className="min-h-[40px] flex-1 resize-none border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
@@ -151,7 +151,7 @@ export function InsuranceChat({
 					type="submit"
 					disabled={isLoading || !inputValue.trim()}
 					size="icon"
-					className="h-10 w-10 bg-apple-blue text-white hover:bg-apple-blue/90"
+					className="h-10 w-10 bg-teal-500 text-white hover:bg-teal-600"
 				>
 					{isLoading ? (
 						<Loader2 className="h-4 w-4 animate-spin" />

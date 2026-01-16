@@ -20,8 +20,13 @@ type InsuranceData = {
 	companyName: string;
 	insuranceName: string | null;
 	insuranceDescription: string | null;
+	coverageDescription: string | null;
+	generatedSummary: string | null;
+	topReasons: string[] | null;
+	rightOfWithdrawal: string | null;
 	categories: string[] | null;
-	monthlyPriceInCents: number | null;
+	yearlyPriceInCents: number | null;
+	twoYearlyPriceInCents: number | null;
 	coveragePercentage: number | null;
 	deductibleInCents: number | null;
 	isActive: number;
@@ -44,12 +49,23 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 	const [insuranceDescription, setInsuranceDescription] = useState(
 		insurance.insuranceDescription ?? "",
 	);
+	const [coverageDescription, setCoverageDescription] = useState(
+		insurance.coverageDescription ?? "",
+	);
+	const [rightOfWithdrawal, setRightOfWithdrawal] = useState(
+		insurance.rightOfWithdrawal ?? "",
+	);
 	const [selectedCategories, setSelectedCategories] = useState<
 		ProductCategory[]
 	>((insurance.categories as ProductCategory[]) ?? []);
-	const [monthlyPriceDollars, setMonthlyPriceDollars] = useState(
-		insurance.monthlyPriceInCents
-			? (insurance.monthlyPriceInCents / CENTS_PER_DOLLAR).toString()
+	const [yearlyPriceDollars, setYearlyPriceDollars] = useState(
+		insurance.yearlyPriceInCents
+			? (insurance.yearlyPriceInCents / CENTS_PER_DOLLAR).toString()
+			: "",
+	);
+	const [twoYearlyPriceDollars, setTwoYearlyPriceDollars] = useState(
+		insurance.twoYearlyPriceInCents
+			? (insurance.twoYearlyPriceInCents / CENTS_PER_DOLLAR).toString()
 			: "",
 	);
 	const [coveragePercentage, setCoveragePercentage] = useState(
@@ -80,8 +96,11 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 		setFormStatus("loading");
 		setErrorMessage("");
 
-		const monthlyPriceInCents = Math.round(
-			Number.parseFloat(monthlyPriceDollars || "0") * CENTS_PER_DOLLAR,
+		const yearlyPriceInCents = Math.round(
+			Number.parseFloat(yearlyPriceDollars || "0") * CENTS_PER_DOLLAR,
+		);
+		const twoYearlyPriceInCents = Math.round(
+			Number.parseFloat(twoYearlyPriceDollars || "0") * CENTS_PER_DOLLAR,
 		);
 		const deductibleInCents = Math.round(
 			Number.parseFloat(deductibleDollars || "0") * CENTS_PER_DOLLAR,
@@ -95,8 +114,11 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 			companyName,
 			insuranceName,
 			insuranceDescription,
+			coverageDescription: coverageDescription || undefined,
+			rightOfWithdrawal: rightOfWithdrawal || undefined,
 			categories: selectedCategories,
-			monthlyPriceInCents,
+			yearlyPriceInCents,
+			twoYearlyPriceInCents,
 			coveragePercentage: coveragePercentageValue,
 			deductibleInCents,
 			isActive: isActive ? 1 : 0,
@@ -108,7 +130,9 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 			setTimeout(() => setFormStatus("idle"), 3000);
 		} else {
 			setFormStatus("error");
-			setErrorMessage(result.error ?? "An unexpected error occurred");
+			setErrorMessage(
+				result.error ?? "Ein unerwarteter Fehler ist aufgetreten",
+			);
 		}
 	};
 
@@ -120,7 +144,7 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 				<div className="mb-6 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
 					<CheckCircle className="h-5 w-5 text-green-600" />
 					<p className="text-green-800">
-						Insurance settings updated successfully!
+						Versicherungseinstellungen erfolgreich aktualisiert!
 					</p>
 				</div>
 			)}
@@ -134,12 +158,12 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 			<form onSubmit={handleSubmit} className="space-y-8">
 				<div className="space-y-2">
 					<Label htmlFor="companyName" className="text-apple-text-primary">
-						Company Name
+						Firmenname
 					</Label>
 					<Input
 						id="companyName"
 						type="text"
-						placeholder="Enter your company name"
+						placeholder="Geben Sie Ihren Firmennamen ein"
 						value={companyName}
 						onChange={(event) => setCompanyName(event.target.value)}
 						disabled={isFormDisabled}
@@ -150,12 +174,12 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 
 				<div className="space-y-2">
 					<Label htmlFor="insuranceName" className="text-apple-text-primary">
-						Insurance Name
+						Versicherungsname
 					</Label>
 					<Input
 						id="insuranceName"
 						type="text"
-						placeholder="e.g., Premium Device Protection"
+						placeholder="z.B. Premium Geräteschutz"
 						value={insuranceName}
 						onChange={(event) => setInsuranceName(event.target.value)}
 						disabled={isFormDisabled}
@@ -168,11 +192,11 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 						htmlFor="insuranceDescription"
 						className="text-apple-text-primary"
 					>
-						Insurance Description
+						Versicherungsbeschreibung
 					</Label>
 					<Textarea
 						id="insuranceDescription"
-						placeholder="Describe your insurance coverage and benefits..."
+						placeholder="Beschreiben Sie Ihren Versicherungsschutz und die Vorteile..."
 						value={insuranceDescription}
 						onChange={(event) => setInsuranceDescription(event.target.value)}
 						disabled={isFormDisabled}
@@ -181,9 +205,76 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 					/>
 				</div>
 
+				<div className="space-y-2">
+					<Label
+						htmlFor="coverageDescription"
+						className="text-apple-text-primary"
+					>
+						Deckungsdetails
+					</Label>
+					<Textarea
+						id="coverageDescription"
+						placeholder="Erklären Sie, was durch diese Versicherung abgedeckt ist (z.B. Diebstahl, Unfallschäden, Flüssigkeitsschäden)..."
+						value={coverageDescription}
+						onChange={(event) => setCoverageDescription(event.target.value)}
+						disabled={isFormDisabled}
+						rows={4}
+						className="border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
+					/>
+					<p className="text-sm text-apple-text-tertiary">
+						Dies wird Kunden angezeigt, wenn sie Ihre Versicherung ansehen.
+					</p>
+				</div>
+
+				<div className="space-y-2">
+					<Label
+						htmlFor="rightOfWithdrawal"
+						className="text-apple-text-primary"
+					>
+						Widerrufsrecht
+					</Label>
+					<Textarea
+						id="rightOfWithdrawal"
+						placeholder="Beschreiben Sie die Stornierungsbedingungen und Kundenrechte..."
+						value={rightOfWithdrawal}
+						onChange={(event) => setRightOfWithdrawal(event.target.value)}
+						disabled={isFormDisabled}
+						rows={3}
+						className="border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
+					/>
+					<p className="text-sm text-apple-text-tertiary">
+						Informationen über Widerrufsrechte und Rückerstattungsrichtlinien.
+					</p>
+				</div>
+
+				{insurance.generatedSummary && (
+					<div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+						<Label className="text-blue-900">
+							KI-generierte Zusammenfassung
+						</Label>
+						<p className="mt-2 text-sm text-blue-800">
+							{insurance.generatedSummary}
+						</p>
+						{insurance.topReasons && insurance.topReasons.length > 0 && (
+							<div className="mt-3">
+								<Label className="text-blue-900">Top 3 Gründe</Label>
+								<ul className="mt-2 list-inside list-disc space-y-1 text-sm text-blue-800">
+									{insurance.topReasons.map((reason, reasonIndex) => (
+										<li key={reasonIndex}>{reason}</li>
+									))}
+								</ul>
+							</div>
+						)}
+						<p className="mt-3 text-xs text-blue-700">
+							Dieser Inhalt wird automatisch generiert, wenn
+							Versicherungsdokumente verarbeitet werden.
+						</p>
+					</div>
+				)}
+
 				<div className="space-y-3">
 					<Label className="text-apple-text-primary">
-						Supported Product Categories
+						Unterstützte Produktkategorien
 					</Label>
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 						{PRODUCT_CATEGORIES.map((category) => (
@@ -205,34 +296,54 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 						))}
 					</div>
 					<p className="text-sm text-apple-text-tertiary">
-						Select all product categories your insurance covers.
+						Wählen Sie alle Produktkategorien aus, die Ihre Versicherung
+						abdeckt.
 					</p>
 				</div>
 
-				<div className="grid gap-6 sm:grid-cols-3">
+				<div className="grid gap-6 sm:grid-cols-2">
 					<div className="space-y-2">
-						<Label htmlFor="monthlyPrice" className="text-apple-text-primary">
-							Monthly Price ($)
+						<Label htmlFor="yearlyPrice" className="text-apple-text-primary">
+							Preis für 1 Jahr (€)
 						</Label>
 						<Input
-							id="monthlyPrice"
+							id="yearlyPrice"
 							type="number"
 							step="0.01"
 							min="0"
-							placeholder="3.99"
-							value={monthlyPriceDollars}
-							onChange={(event) => setMonthlyPriceDollars(event.target.value)}
+							placeholder="47.88"
+							value={yearlyPriceDollars}
+							onChange={(event) => setYearlyPriceDollars(event.target.value)}
 							disabled={isFormDisabled}
 							className="border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
 						/>
 					</div>
 
 					<div className="space-y-2">
+						<Label htmlFor="twoYearlyPrice" className="text-apple-text-primary">
+							Preis für 2 Jahre (€)
+						</Label>
+						<Input
+							id="twoYearlyPrice"
+							type="number"
+							step="0.01"
+							min="0"
+							placeholder="89.99"
+							value={twoYearlyPriceDollars}
+							onChange={(event) => setTwoYearlyPriceDollars(event.target.value)}
+							disabled={isFormDisabled}
+							className="border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
+						/>
+					</div>
+				</div>
+
+				<div className="grid gap-6 sm:grid-cols-2">
+					<div className="space-y-2">
 						<Label
 							htmlFor="coveragePercentage"
 							className="text-apple-text-primary"
 						>
-							Coverage (%)
+							Deckung (%)
 						</Label>
 						<Input
 							id="coveragePercentage"
@@ -249,7 +360,7 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 
 					<div className="space-y-2">
 						<Label htmlFor="deductible" className="text-apple-text-primary">
-							Deductible ($)
+							Selbstbehalt (€)
 						</Label>
 						<Input
 							id="deductible"
@@ -267,7 +378,7 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 
 				<div className="space-y-2">
 					<Label htmlFor="apiEndpoint" className="text-apple-text-primary">
-						Contract API Endpoint
+						Vertrags-API-Endpunkt
 					</Label>
 					<Input
 						id="apiEndpoint"
@@ -280,7 +391,8 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 						className="border-apple-card-border bg-apple-gray-bg text-apple-text-primary placeholder:text-apple-text-tertiary"
 					/>
 					<p className="text-sm text-apple-text-tertiary">
-						The endpoint where our platform will send contract CRUD operations.
+						Der Endpunkt, an den unsere Plattform Vertrags-CRUD-Operationen
+						sendet.
 					</p>
 				</div>
 
@@ -296,11 +408,11 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 					/>
 					<div>
 						<span className="font-medium text-apple-text-primary">
-							Active Insurance
+							Aktive Versicherung
 						</span>
 						<p className="text-sm text-apple-text-tertiary">
-							When active, this insurance will be available for product
-							recommendations.
+							Wenn aktiv, wird diese Versicherung für Produktempfehlungen
+							verfügbar sein.
 						</p>
 					</div>
 				</label>
@@ -313,10 +425,10 @@ export function InsuranceEditForm({ insurance }: InsuranceEditFormProps) {
 					{formStatus === "loading" ? (
 						<>
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							Saving...
+							Speichern...
 						</>
 					) : (
-						"Save Changes"
+						"Änderungen speichern"
 					)}
 				</Button>
 			</form>

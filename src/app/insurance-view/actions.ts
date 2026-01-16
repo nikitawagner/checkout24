@@ -15,8 +15,11 @@ type SaveInsuranceConfigurationRequest = {
 	companyName: string;
 	insuranceName: string;
 	insuranceDescription: string;
+	coverageDescription?: string;
+	rightOfWithdrawal?: string;
 	categories: string[];
-	monthlyPriceInCents: number;
+	yearlyPriceInCents: number;
+	twoYearlyPriceInCents: number;
 	coveragePercentage: number;
 	deductibleInCents: number;
 	apiEndpoint: string;
@@ -56,8 +59,11 @@ export async function saveInsuranceConfiguration(
 			companyName: request.companyName,
 			insuranceName: request.insuranceName,
 			insuranceDescription: request.insuranceDescription,
+			coverageDescription: request.coverageDescription,
+			rightOfWithdrawal: request.rightOfWithdrawal,
 			categories: request.categories,
-			monthlyPriceInCents: request.monthlyPriceInCents,
+			yearlyPriceInCents: request.yearlyPriceInCents,
+			twoYearlyPriceInCents: request.twoYearlyPriceInCents,
 			coveragePercentage: request.coveragePercentage,
 			deductibleInCents: request.deductibleInCents,
 			apiEndpoint: request.apiEndpoint,

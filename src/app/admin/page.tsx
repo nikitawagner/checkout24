@@ -22,7 +22,8 @@ export default async function AdminPage() {
 			companyName: insuranceCompaniesTable.companyName,
 			insuranceName: insuranceCompaniesTable.insuranceName,
 			categories: insuranceCompaniesTable.categories,
-			monthlyPriceInCents: insuranceCompaniesTable.monthlyPriceInCents,
+			yearlyPriceInCents: insuranceCompaniesTable.yearlyPriceInCents,
+			twoYearlyPriceInCents: insuranceCompaniesTable.twoYearlyPriceInCents,
 			isActive: insuranceCompaniesTable.isActive,
 			apiEndpoint: insuranceCompaniesTable.apiEndpoint,
 			createdAt: insuranceCompaniesTable.createdAt,
@@ -67,8 +68,8 @@ export default async function AdminPage() {
 							);
 							const remainingCategoriesCount =
 								categories.length - MAX_VISIBLE_CATEGORIES;
-							const monthlyPriceInDollars = company.monthlyPriceInCents
-								? (company.monthlyPriceInCents / CENTS_PER_DOLLAR).toFixed(2)
+							const yearlyPriceInDollars = company.yearlyPriceInCents
+								? (company.yearlyPriceInCents / CENTS_PER_DOLLAR).toFixed(2)
 								: null;
 							const isActive = company.isActive === 1;
 
@@ -118,9 +119,9 @@ export default async function AdminPage() {
 											)}
 
 											<div className="flex items-center justify-between text-sm">
-												{monthlyPriceInDollars && (
+												{yearlyPriceInDollars && (
 													<span className="font-medium text-apple-text-primary">
-														${monthlyPriceInDollars}/mo
+														${yearlyPriceInDollars}/yr
 													</span>
 												)}
 												<span className="text-apple-text-tertiary">

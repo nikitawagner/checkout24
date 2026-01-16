@@ -43,19 +43,26 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
 
-		const response = await fetch("https://api.openai.com/v1/embeddings", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
+		const response = await fetch(
+			"https://api.openai.com/v1/embeddings",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					input: request.text,
+					model: model,
+					dimensions: dimensions,
+				}),
 			},
-			body: JSON.stringify(formattedRequest),
-		});
+		);
 
 		if (!response.ok) {
 			const error = await response.text();
@@ -64,7 +71,7 @@ export const createEmbeddingService = (
 
 		const data = await response.json();
 
-		const embedding = data.data?.[0]?.embedding || [];
+		const embedding = data.data[0]?.embedding || [];
 
 		return validateEmbeddingResponse({
 			embedding,
@@ -91,29 +98,37 @@ export const createEmbeddingService = (
 			dimensions,
 		);
 
-		const apiKey = embeddingConfig.apiKey || process.env.OPENAI_API_KEY;
+		const apiKey = embeddingConfig.apiKey;
 		if (!apiKey) {
 			throw new Error("Embedding API key not configured");
 		}
 
-		const response = await fetch("https://api.openai.com/v1/embeddings", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
+		const response = await fetch(
+			"https://api.openai.com/v1/embeddings",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					input: request.texts,
+					model: model,
+					dimensions: dimensions,
+				}),
 			},
-			body: JSON.stringify(formattedRequest),
-		});
+		);
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`Embedding API error: ${response.statusText} - ${error}`);
+			throw new Error(
+				`Embedding API error: ${response.statusText} - ${error}`,
+			);
 		}
 
 		const data = await response.json();
 
-		const embeddings =
-			data.data?.map((item: { embedding: number[] }) => item.embedding) || [];
+		const embeddings = data.data.map((item: { embedding: number[] }) => item.embedding);
 
 		return validateEmbeddingBatchResponse({
 			embeddings,

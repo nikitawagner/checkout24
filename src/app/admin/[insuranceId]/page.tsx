@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/src/db";
 import { insuranceCompaniesTable, policyFilesTable } from "@/src/db/schema";
+import { DeleteInsuranceButton } from "./delete-insurance-button";
 import { InsuranceEditForm } from "./insurance-edit-form";
 import { PolicyFileCard } from "./policy-file-card";
+import { RegenerateAISummaryButton } from "./regenerate-ai-summary-button";
+import { ReprocessDocumentsButton } from "./reprocess-documents-button";
 
 type AdminInsuranceDetailPageProps = {
 	params: Promise<{ insuranceId: string }>;
@@ -52,14 +55,22 @@ export default async function AdminInsuranceDetailPage({
 				</Link>
 
 				<header className="mb-12">
-					<h1 className="font-sans text-4xl font-semibold tracking-tight text-apple-text-primary md:text-5xl">
-						{insuranceCompany.companyName}
-					</h1>
-					{insuranceCompany.insuranceName && (
-						<p className="mt-2 text-lg text-apple-text-secondary">
-							{insuranceCompany.insuranceName}
-						</p>
-					)}
+					<div className="flex items-start justify-between">
+						<div>
+							<h1 className="font-sans text-4xl font-semibold tracking-tight text-apple-text-primary md:text-5xl">
+								{insuranceCompany.companyName}
+							</h1>
+							{insuranceCompany.insuranceName && (
+								<p className="mt-2 text-lg text-apple-text-secondary">
+									{insuranceCompany.insuranceName}
+								</p>
+							)}
+						</div>
+						<DeleteInsuranceButton
+							insuranceId={insuranceCompany.id}
+							companyName={insuranceCompany.companyName}
+						/>
+					</div>
 				</header>
 
 				<section className="mb-12">
@@ -72,8 +83,13 @@ export default async function AdminInsuranceDetailPage({
 							companyName: insuranceCompany.companyName,
 							insuranceName: insuranceCompany.insuranceName,
 							insuranceDescription: insuranceCompany.insuranceDescription,
+							coverageDescription: insuranceCompany.coverageDescription,
+							generatedSummary: insuranceCompany.generatedSummary,
+							topReasons: insuranceCompany.topReasons,
+							rightOfWithdrawal: insuranceCompany.rightOfWithdrawal,
 							categories: insuranceCompany.categories,
-							monthlyPriceInCents: insuranceCompany.monthlyPriceInCents,
+							yearlyPriceInCents: insuranceCompany.yearlyPriceInCents,
+							twoYearlyPriceInCents: insuranceCompany.twoYearlyPriceInCents,
 							coveragePercentage: insuranceCompany.coveragePercentage,
 							deductibleInCents: insuranceCompany.deductibleInCents,
 							isActive: insuranceCompany.isActive,
@@ -83,9 +99,18 @@ export default async function AdminInsuranceDetailPage({
 				</section>
 
 				<section>
-					<h2 className="mb-6 text-2xl font-semibold text-apple-text-primary">
-						Policy Documents
-					</h2>
+					<div className="mb-6 flex items-center justify-between">
+						<h2 className="text-2xl font-semibold text-apple-text-primary">
+							Policy Documents
+						</h2>
+					</div>
+
+					{!hasNoPolicyFiles && (
+						<div className="mb-4 flex gap-3">
+							<RegenerateAISummaryButton insuranceId={insuranceCompany.id} />
+							<ReprocessDocumentsButton insuranceId={insuranceCompany.id} />
+						</div>
+					)}
 
 					{hasNoPolicyFiles ? (
 						<Card className="border-apple-card-border bg-apple-card-bg">

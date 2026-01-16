@@ -18,13 +18,13 @@ export default function ProductDetailPage() {
 			<div className="flex min-h-screen items-center justify-center bg-apple-gray-bg">
 				<div className="text-center">
 					<h1 className="text-2xl font-semibold text-apple-text-primary">
-						Product not found
+						Produkt nicht gefunden
 					</h1>
 					<Link
 						href="/"
 						className="mt-4 inline-block text-apple-blue hover:underline"
 					>
-						Back to shop
+						Zurück zum Shop
 					</Link>
 				</div>
 			</div>
@@ -33,9 +33,9 @@ export default function ProductDetailPage() {
 
 	const selectedColor = product.colors.at(0);
 
-	const formattedPrice = new Intl.NumberFormat("en-US", {
+	const formattedPrice = new Intl.NumberFormat("de-DE", {
 		style: "currency",
-		currency: "USD",
+		currency: "EUR",
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
 	}).format(product.basePrice);
@@ -48,7 +48,7 @@ export default function ProductDetailPage() {
 					className="mb-8 inline-flex items-center gap-2 text-apple-blue hover:underline"
 				>
 					<ArrowLeft className="size-4" />
-					Back to shop
+					Zurück zum Shop
 				</Link>
 
 				<div className="grid gap-12 lg:grid-cols-2">
@@ -83,11 +83,11 @@ export default function ProductDetailPage() {
 						<div className="mb-8 space-y-4">
 							<div className="flex items-center gap-3 text-apple-text-secondary">
 								<Truck className="size-5" />
-								<span>Free delivery</span>
+								<span>Kostenloser Versand</span>
 							</div>
 							<div className="flex items-center gap-3 text-apple-text-secondary">
 								<Check className="size-5" />
-								<span>In stock and ready to ship</span>
+								<span>Auf Lager und versandbereit</span>
 							</div>
 						</div>
 
@@ -100,7 +100,7 @@ export default function ProductDetailPage() {
 							/>
 
 							<p className="text-center text-sm text-apple-text-secondary">
-								Order now for delivery within 2-4 business days
+								Jetzt bestellen für Lieferung innerhalb von 2-4 Werktagen
 							</p>
 						</div>
 
@@ -111,15 +111,15 @@ export default function ProductDetailPage() {
 							<ul className="space-y-3 text-apple-text-secondary">
 								<li className="flex items-start gap-3">
 									<Check className="mt-0.5 size-4 shrink-0 text-apple-blue" />
-									<span>Premium build quality</span>
+									<span>Hochwertige Verarbeitung</span>
 								</li>
 								<li className="flex items-start gap-3">
 									<Check className="mt-0.5 size-4 shrink-0 text-apple-blue" />
-									<span>Industry-leading performance</span>
+									<span>Branchenführende Leistung</span>
 								</li>
 								<li className="flex items-start gap-3">
 									<Check className="mt-0.5 size-4 shrink-0 text-apple-blue" />
-									<span>1-year warranty included</span>
+									<span>1 Jahr Garantie inklusive</span>
 								</li>
 							</ul>
 						</div>

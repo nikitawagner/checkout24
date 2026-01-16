@@ -29,6 +29,20 @@
 			"when": 1765234000000,
 			"tag": "0003_add_insurance_fields",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1765234500000,
+			"tag": "0004_replace_monthly_with_yearly_pricing",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1737040800000,
+			"tag": "0005_add_coverage_and_summary_fields",
+			"breakpoints": true
 		}
 	]
 }

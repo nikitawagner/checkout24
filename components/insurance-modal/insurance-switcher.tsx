@@ -3,13 +3,17 @@
 import { Check, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { InsuranceRecommendation } from "@/lib/types/insurance";
+import type {
+	InsurancePlanDuration,
+	InsuranceRecommendation,
+} from "@/lib/types/insurance";
 
 type InsuranceSwitcherProps = {
 	insurances: InsuranceRecommendation[];
 	selectedIndex: number;
 	onSelect: (index: number) => void;
 	cartInsurancePriceInCents: number | null;
+	selectedPlanDuration: InsurancePlanDuration;
 };
 
 const CENTS_PER_DOLLAR = 100;
@@ -17,9 +21,9 @@ const CENTS_PER_DOLLAR = 100;
 const formatCurrency = (cents: number): string => {
 	const dollars = cents / CENTS_PER_DOLLAR;
 
-	return new Intl.NumberFormat("en-US", {
+	return new Intl.NumberFormat("de-DE", {
 		style: "currency",
-		currency: "USD",
+		currency: "EUR",
 	}).format(dollars);
 };
 
@@ -28,10 +32,13 @@ export function InsuranceSwitcher({
 	selectedIndex,
 	onSelect,
 	cartInsurancePriceInCents,
+	selectedPlanDuration,
 }: InsuranceSwitcherProps) {
 	if (insurances.length <= 1) {
 		return null;
 	}
+
+	const priceLabel = selectedPlanDuration === "yearly" ? "/Jahr" : "/2 Jahre";
 
 	return (
 		<Tabs
@@ -42,9 +49,13 @@ export function InsuranceSwitcher({
 			<TabsList className="grid h-auto w-full auto-cols-fr grid-flow-col gap-1 p-1">
 				{insurances.map((insurance, index) => {
 					const isRecommended = index === 0;
+					const displayedPrice =
+						selectedPlanDuration === "yearly"
+							? insurance.yearlyPriceInCents
+							: insurance.twoYearlyPriceInCents;
 					const isInCart =
 						cartInsurancePriceInCents !== null &&
-						insurance.monthlyPriceInCents === cartInsurancePriceInCents;
+						displayedPrice === cartInsurancePriceInCents;
 
 					return (
 						<TabsTrigger
@@ -55,19 +66,20 @@ export function InsuranceSwitcher({
 							{isInCart ? (
 								<Badge className="absolute -top-1 left-1/2 -translate-x-1/2 bg-green-500 px-1.5 py-0 text-[10px] font-medium text-white hover:bg-green-500">
 									<Check className="mr-0.5 h-2.5 w-2.5" />
-									In Cart
+									Im Warenkorb
 								</Badge>
 							) : isRecommended ? (
 								<Badge className="absolute -top-1 left-1/2 -translate-x-1/2 bg-amber-500 px-1.5 py-0 text-[10px] font-medium text-white hover:bg-amber-500">
 									<Star className="mr-0.5 h-2.5 w-2.5" />
-									Best
+									Beste Wahl
 								</Badge>
 							) : null}
 							<span className="mt-1 truncate text-xs font-medium">
 								{insurance.companyName}
 							</span>
 							<span className="text-xs text-muted-foreground">
-								{formatCurrency(insurance.monthlyPriceInCents)}/mo
+								{formatCurrency(displayedPrice)}
+								{priceLabel}
 							</span>
 						</TabsTrigger>
 					);

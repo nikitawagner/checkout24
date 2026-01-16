@@ -1,5 +1,5 @@
 export const LLM_CONFIG = {
-	model: "gpt-4",
+	model: "gpt-4o-mini",
 	temperature: 0.7,
 	maxTokens: 1000,
 	defaultProvider: "openai",

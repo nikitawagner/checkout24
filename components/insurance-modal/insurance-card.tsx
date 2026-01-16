@@ -5,6 +5,7 @@ import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
+	InsurancePlanDuration,
 	InsuranceRecommendation,
 	InsuranceSummary,
 } from "@/lib/types/insurance";
@@ -14,6 +15,7 @@ type InsuranceCardProps = {
 	summary: InsuranceSummary | null;
 	isLoadingSummary: boolean;
 	isRecommended: boolean;
+	selectedPlanDuration: InsurancePlanDuration;
 };
 
 const CENTS_PER_DOLLAR = 100;
@@ -21,9 +23,9 @@ const CENTS_PER_DOLLAR = 100;
 const formatCurrency = (cents: number): string => {
 	const dollars = cents / CENTS_PER_DOLLAR;
 
-	return new Intl.NumberFormat("en-US", {
+	return new Intl.NumberFormat("de-DE", {
 		style: "currency",
-		currency: "USD",
+		currency: "EUR",
 	}).format(dollars);
 };
 
@@ -32,7 +34,16 @@ export function InsuranceCard({
 	summary,
 	isLoadingSummary,
 	isRecommended,
+	selectedPlanDuration,
 }: InsuranceCardProps) {
+	const displayedPrice =
+		selectedPlanDuration === "yearly"
+			? insurance.yearlyPriceInCents
+			: insurance.twoYearlyPriceInCents;
+
+	const priceLabel =
+		selectedPlanDuration === "yearly" ? "für 1 Jahr" : "für 2 Jahre";
+
 	return (
 		<div className="space-y-4">
 			<div className="flex items-start justify-between">
@@ -41,23 +52,23 @@ export function InsuranceCard({
 						{insurance.insuranceName}
 					</h3>
 					<p className="text-sm text-apple-text-secondary">
-						by {insurance.companyName}
+						von {insurance.companyName}
 					</p>
 				</div>
 				<div className="text-right">
 					<p className="text-2xl font-bold text-apple-blue">
-						{formatCurrency(insurance.monthlyPriceInCents)}
+						{formatCurrency(displayedPrice)}
 					</p>
-					<p className="text-xs text-apple-text-tertiary">per month</p>
+					<p className="text-xs text-apple-text-tertiary">{priceLabel}</p>
 				</div>
 			</div>
 
 			<div className="flex flex-wrap gap-2">
 				<Badge variant="secondary" className="bg-green-100 text-green-800">
-					{insurance.coveragePercentage}% Coverage
+					{insurance.coveragePercentage}% Deckung
 				</Badge>
 				<Badge variant="secondary" className="bg-orange-100 text-orange-800">
-					{formatCurrency(insurance.deductibleInCents)} Deductible
+					{formatCurrency(insurance.deductibleInCents)} Selbstbehalt
 				</Badge>
 			</div>
 
@@ -76,7 +87,7 @@ export function InsuranceCard({
 						<div className="mb-2 flex items-center gap-2">
 							<Sparkles className="h-4 w-4 text-purple-600" />
 							<span className="text-sm font-medium text-purple-800">
-								Why this insurance?
+								Warum diese Versicherung?
 							</span>
 						</div>
 
@@ -107,7 +118,7 @@ export function InsuranceCard({
 							</div>
 						) : (
 							<p className="text-sm text-purple-700">
-								Loading personalized recommendation...
+								Lade personalisierte Empfehlung...
 							</p>
 						)}
 					</div>

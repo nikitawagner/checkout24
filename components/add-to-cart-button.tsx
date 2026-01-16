@@ -58,15 +58,7 @@ export function AddToCartButton({
 		setIsInsurancePopupOpen(true);
 	};
 
-	const handleInsuranceChange = (checked: boolean) => {
-		setInsurance(
-			productId,
-			checked,
-			recommendedInsurance?.monthlyPriceInCents ?? null,
-		);
-	};
-
-	const handleSeeMore = () => {
+	const handleOpenInsuranceModal = () => {
 		setIsInsuranceModalOpen(true);
 	};
 
@@ -89,7 +81,7 @@ export function AddToCartButton({
 						className="h-14 w-full rounded-xl bg-apple-blue text-lg font-medium text-white transition-all duration-300 hover:bg-apple-blue/90 active:scale-[0.98]"
 					>
 						<ShoppingBag className="size-5" />
-						Add to Bag
+						In den Warenkorb
 					</Button>
 				</ClickSpark>
 
@@ -113,7 +105,7 @@ export function AddToCartButton({
 				className="h-14 w-full cursor-default rounded-xl bg-green-600 text-lg font-medium text-white opacity-100 hover:bg-green-600"
 			>
 				<Check className="size-5" />
-				In Bag
+				Im Warenkorb
 			</Button>
 
 			<InsuranceUpsellPopup
@@ -121,11 +113,13 @@ export function AddToCartButton({
 				productName={productName}
 				isOpen={isInsurancePopupOpen}
 				isInsuranceChecked={isInsuranceAdded}
-				monthlyPriceInCents={recommendedInsurance?.monthlyPriceInCents ?? null}
+				yearlyPriceInCents={recommendedInsurance?.yearlyPriceInCents ?? null}
+				twoYearlyPriceInCents={
+					recommendedInsurance?.twoYearlyPriceInCents ?? null
+				}
 				isLoadingPrice={isLoadingInsurance}
 				onClose={() => setIsInsurancePopupOpen(false)}
-				onInsuranceChange={handleInsuranceChange}
-				onSeeMore={handleSeeMore}
+				onOpenModal={handleOpenInsuranceModal}
 			/>
 
 			<InsuranceModal

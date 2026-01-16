@@ -8,24 +8,25 @@ type InsuranceUpsellPopupProps = {
 	productName: string;
 	isOpen: boolean;
 	isInsuranceChecked: boolean;
-	monthlyPriceInCents: number | null;
+	yearlyPriceInCents: number | null;
+	twoYearlyPriceInCents: number | null;
 	isLoadingPrice: boolean;
 	onClose: () => void;
-	onInsuranceChange: (checked: boolean) => void;
-	onSeeMore: () => void;
+	onOpenModal: () => void;
 };
-
-const CENTS_PER_DOLLAR = 100;
 
 export function InsuranceUpsellPopup({
 	isOpen,
 	isInsuranceChecked,
-	monthlyPriceInCents,
+	yearlyPriceInCents,
+	twoYearlyPriceInCents,
 	isLoadingPrice,
 	onClose,
-	onInsuranceChange,
-	onSeeMore,
+	onOpenModal,
 }: InsuranceUpsellPopupProps) {
+	// Default to 2 years (two-yearly)
+	const defaultPriceInCents = twoYearlyPriceInCents ?? yearlyPriceInCents;
+	const defaultDuration = twoYearlyPriceInCents !== null ? "2 Jahre" : "1 Jahr";
 	if (!isOpen) {
 		return null;
 	}
@@ -37,40 +38,53 @@ export function InsuranceUpsellPopup({
 					<Checkbox
 						id="insurance-checkbox"
 						checked={isInsuranceChecked}
-						onCheckedChange={(checked) => onInsuranceChange(checked === true)}
+						onCheckedChange={() => onOpenModal()}
 						className="mt-0.5"
-						disabled={isLoadingPrice || monthlyPriceInCents === null}
+						disabled={isLoadingPrice || defaultPriceInCents === null}
 					/>
 					<div className="flex flex-col gap-1">
 						<label
 							htmlFor="insurance-checkbox"
 							className="cursor-pointer text-sm font-medium text-apple-text-primary"
+							onClick={() =>
+								!isLoadingPrice && defaultPriceInCents !== null && onOpenModal()
+							}
+							onKeyDown={(e) => {
+								if (
+									(e.key === "Enter" || e.key === " ") &&
+									!isLoadingPrice &&
+									defaultPriceInCents !== null
+								) {
+									e.preventDefault();
+									onOpenModal();
+								}
+							}}
 						>
 							{isLoadingPrice ? (
 								<span className="flex items-center gap-2">
 									<Loader2 className="h-3 w-3 animate-spin" />
-									Loading insurance...
+									Versicherung wird geladen...
 								</span>
-							) : monthlyPriceInCents !== null ? (
+							) : defaultPriceInCents !== null ? (
 								isInsuranceChecked ? (
 									<span className="flex items-center gap-2 text-green-600">
 										<Check className="h-4 w-4" />
-										Insurance added
+										Versicherung hinzugefügt
 									</span>
 								) : (
-									`Add insurance for $${(monthlyPriceInCents / CENTS_PER_DOLLAR).toFixed(2)}/mo`
+									`${defaultDuration} Schutz hinzufügen für ${(defaultPriceInCents / 100).toFixed(2).replace(".", ",")} €`
 								)
 							) : (
-								"No insurance available"
+								"Keine Versicherung verfügbar"
 							)}
 						</label>
-						{monthlyPriceInCents !== null && (
+						{defaultPriceInCents !== null && (
 							<button
 								type="button"
-								onClick={onSeeMore}
+								onClick={onOpenModal}
 								className="text-left text-sm font-medium text-apple-blue hover:underline"
 							>
-								See more
+								Mehr erfahren
 							</button>
 						)}
 					</div>
