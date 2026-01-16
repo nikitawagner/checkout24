@@ -1,8 +1,9 @@
 "use client";
 
-import { Minus, Plus, Shield, ShoppingBag, X } from "lucide-react";
+import { Minus, Plus, Shield, ShoppingBag, X, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Popover,
@@ -10,16 +11,21 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useCart } from "@/lib/context/cart-context";
-import { products } from "@/lib/data/products";
+import { getProductById, products } from "@/lib/data/products";
+import { InsuranceModal } from "./insurance-modal";
 
 const CENTS_PER_DOLLAR = 100;
 
 export function CartDropdown() {
 	const { items, addItem, removeItem, getTotalItems, clearCart } = useCart();
 	const totalItems = getTotalItems();
+	const [showAIModal, setShowAIModal] = useState(false);
+	const [selectedProductForAI, setSelectedProductForAI] = useState<string | null>(null);
 
 	const cartProducts = items.map((item) => {
-		const product = products.find((productItem) => productItem.id === item.productId);
+		const product = products.find(
+			(productItem) => productItem.id === item.productId,
+		);
 
 		return {
 			...item,
@@ -28,7 +34,9 @@ export function CartDropdown() {
 	});
 
 	const totalPrice = cartProducts.reduce((sum, item) => {
-		if (!item.product) return sum;
+		if (!item.product) {
+			return sum;
+		}
 
 		const productTotal = item.product.basePrice * item.quantity;
 		const insurancePriceInDollars = item.insurancePriceInCents
@@ -62,10 +70,15 @@ export function CartDropdown() {
 						)}
 					</button>
 				</PopoverTrigger>
-				<PopoverContent align="end" className="w-80 border-border bg-apple-card-bg p-0">
+				<PopoverContent
+					align="end"
+					className="w-80 border-border bg-apple-card-bg p-0"
+				>
 					<div className="border-b border-border p-4">
 						<div className="flex items-center justify-between">
-							<h3 className="text-lg font-semibold text-apple-text-primary">Your Bag</h3>
+							<h3 className="text-lg font-semibold text-apple-text-primary">
+								Your Bag
+							</h3>
 							{totalItems > 0 && (
 								<button
 									type="button"
@@ -81,8 +94,13 @@ export function CartDropdown() {
 					{totalItems === 0 ? (
 						<div className="flex flex-col items-center gap-3 p-8">
 							<ShoppingBag className="size-12 text-apple-text-secondary" />
-							<p className="text-center text-apple-text-secondary">Your bag is empty</p>
-							<Link href="/" className="text-sm font-medium text-apple-blue hover:underline">
+							<p className="text-center text-apple-text-secondary">
+								Your bag is empty
+							</p>
+							<Link
+								href="/"
+								className="text-sm font-medium text-apple-blue hover:underline"
+							>
 								Continue shopping
 							</Link>
 						</div>
@@ -90,7 +108,9 @@ export function CartDropdown() {
 						<>
 							<div className="max-h-80 overflow-y-auto">
 								{cartProducts.map((item) => {
-									if (!item.product) return null;
+									if (!item.product) {
+										return null;
+									}
 
 									const productColor = item.product.colors.at(0);
 									const itemPrice = new Intl.NumberFormat("en-US", {
@@ -101,52 +121,72 @@ export function CartDropdown() {
 									}).format(item.product.basePrice * item.quantity);
 
 									return (
-										<div key={item.productId} className="flex gap-3 border-b border-border p-4 last:border-b-0">
-											<Link href={`/product/${item.productId}`} className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-white">
+										<div
+											key={item.productId}
+											className="flex gap-3 border-b border-border p-4 last:border-b-0"
+										>
+											<Link
+												href={`/product/${item.productId}`}
+												className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-white"
+											>
 												{productColor && (
-													<Image src={productColor.imageUrl} alt={item.product.name} fill className="object-contain p-1" sizes="64px" />
+													<Image
+														src={productColor.imageUrl}
+														alt={item.product.name}
+														fill
+														className="object-contain p-1"
+														sizes="64px"
+													/>
 												)}
 											</Link>
 
 											<div className="flex flex-1 flex-col gap-1">
-												<Link href={`/product/${item.productId}`} className="text-sm font-medium text-apple-text-primary hover:text-apple-blue">
+												<Link
+													href={`/product/${item.productId}`}
+													className="text-sm font-medium text-apple-text-primary hover:text-apple-blue"
+												>
 													{item.product.name}
 												</Link>
-												<p className="text-sm text-apple-text-secondary">{itemPrice}</p>
-
-												{item.hasInsurance && item.insurancePriceInCents !== null && (
-													<p className="flex items-center gap-1 text-xs text-green-600">
-														<Shield className="size-3" />
-														Insurance +${(item.insurancePriceInCents / CENTS_PER_DOLLAR).toFixed(2)}/mo
-													</p>
-												)}
-
-												{/* Protected / Unprotected badge */}
-												{item.hasInsurance ? (
-													<p className="flex items-center gap-1 text-xs text-green-600">
-														<Shield className="size-3" />
-														Protected
-													</p>
-												) : (
-													<p className="flex items-center gap-1 text-xs text-apple-text-secondary">
-														<Shield className="size-3 opacity-50" />
-														No protection
-													</p>
-												)}
+												<p className="text-sm text-apple-text-secondary">
+													{itemPrice}
+												</p>
+												{item.hasInsurance &&
+													item.insurancePriceInCents !== null && (
+														<p className="flex items-center gap-1 text-xs text-green-600">
+															<Shield className="size-3" />
+															Insurance +$
+															{(
+																item.insurancePriceInCents / CENTS_PER_DOLLAR
+															).toFixed(2)}
+															/mo
+														</p>
+													)}
 
 												<div className="mt-1 flex items-center gap-2">
-													<button type="button" onClick={() => removeItem(item.productId)} className="flex size-6 items-center justify-center rounded-md text-apple-text-secondary hover:bg-apple-blue/10 hover:text-apple-text-primary">
+													<button
+														type="button"
+														onClick={() => removeItem(item.productId)}
+														className="flex size-6 items-center justify-center rounded-md text-apple-text-secondary hover:bg-apple-blue/10 hover:text-apple-text-primary"
+													>
 														<Minus className="size-3" />
 													</button>
-													<span className="min-w-[1.5rem] text-center text-sm font-medium text-apple-text-primary">{item.quantity}</span>
-													<button type="button" onClick={() => addItem(item.productId)} className="flex size-6 items-center justify-center rounded-md text-apple-text-secondary hover:bg-apple-blue/10 hover:text-apple-text-primary">
+													<span className="min-w-[1.5rem] text-center text-sm font-medium text-apple-text-primary">
+														{item.quantity}
+													</span>
+													<button
+														type="button"
+														onClick={() => addItem(item.productId)}
+														className="flex size-6 items-center justify-center rounded-md text-apple-text-secondary hover:bg-apple-blue/10 hover:text-apple-text-primary"
+													>
 														<Plus className="size-3" />
 													</button>
 
 													<button
 														type="button"
 														onClick={() => {
-															Array.from({ length: item.quantity }).map(() => removeItem(item.productId));
+															Array.from({ length: item.quantity }).map(() =>
+																removeItem(item.productId),
+															);
 														}}
 														className="ml-auto flex size-6 items-center justify-center rounded-md text-apple-text-secondary hover:bg-red-500/10 hover:text-red-500"
 													>
@@ -161,18 +201,55 @@ export function CartDropdown() {
 
 							<div className="border-t border-border p-4 space-y-3">
 								<div className="flex items-center justify-between">
-									<span className="font-medium text-apple-text-primary">Total</span>
-									<span className="text-lg font-semibold text-apple-text-primary">{formattedTotal}</span>
+									<span className="font-medium text-apple-text-primary">
+										Total
+									</span>
+									<span className="text-lg font-semibold text-apple-text-primary">
+										{formattedTotal}
+									</span>
 								</div>
 								<Link href="/checkout" className="block">
-									<Button className="h-12 w-full rounded-xl bg-apple-blue text-base font-medium text-white hover:bg-apple-blue/90">Checkout</Button>
+									<Button className="h-12 w-full rounded-xl bg-apple-blue text-base font-medium text-white hover:bg-apple-blue/90">
+										Checkout
+									</Button>
 								</Link>
+								<Button 
+									variant="outline" 
+									className="h-10 w-full rounded-xl border-apple-blue text-apple-blue hover:bg-apple-blue/5"
+									onClick={() => {
+										if (items.length > 0) {
+											setSelectedProductForAI(items[0].productId);
+											setShowAIModal(true);
+										}
+									}}
+								>
+									<Sparkles className="size-4 mr-2" />
+									Ask AI Assistant
+								</Button>
 							</div>
 						</>
 					)}
 				</PopoverContent>
 			</Popover>
+
+			{/* AI Modal */}
+			{showAIModal && selectedProductForAI && (() => {
+				const product = getProductById(selectedProductForAI);
+				if (!product) return null;
+				return (
+					<InsuranceModal
+						isOpen={showAIModal}
+						productId={selectedProductForAI}
+						productName={product.name}
+						productCategory={product.category}
+						productPriceInCents={product.basePrice * 100}
+						onClose={() => {
+							setShowAIModal(false);
+							setSelectedProductForAI(null);
+						}}
+					/>
+				);
+			})()}
 		</>
 	);
 }
- 
