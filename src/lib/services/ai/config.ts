@@ -1,8 +1,8 @@
 export const LLM_CONFIG = {
-	model: "gemini-2.0-flash",
+	model: "gpt-4",
 	temperature: 0.7,
 	maxTokens: 1000,
-	defaultProvider: "gemini",
+	defaultProvider: "openai",
 } as const;
 
 export type LLMConfig = {

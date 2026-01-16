@@ -39,7 +39,6 @@ export const formatLLMRequest = (
 				content: prompt,
 			},
 		],
-		prompt,
 		model,
 		temperature,
 		max_tokens: maxTokens,

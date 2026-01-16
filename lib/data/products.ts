@@ -205,7 +205,3 @@ const productsData: Product[] = [
 ];
 
 export const products = productsData;
-
-export const getProductById = (id: string) => {
-	return productsData.find((product) => product.id === id);
-};

@@ -15,7 +15,7 @@ import { STORAGE_CONFIG } from "./storage/config";
 export const llmService = createLLMService({
 	config: {
 		...LLM_CONFIG,
-		apiKey: process.env.GEMINI_API_KEY,
+		apiKey: process.env.OPENAI_API_KEY,
 	},
 });
 
@@ -29,7 +29,7 @@ export const emailService = createEmailService({
 export const embeddingService = createEmbeddingService({
 	config: {
 		...EMBEDDING_CONFIG,
-		apiKey: process.env.GEMINI_API_KEY,
+		apiKey: process.env.OPENAI_API_KEY,
 	},
 });
 
